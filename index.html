@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIS – Weinverkostung</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #F0EBE4;
+  --white: #FFFFFF;
+  --dark:  #1C1818;
+  --red:   #8B1A1A;
+  --red-d: #6B1010;
+  --red-l: rgba(139,26,26,0.07);
+  --gold:  #C8A96E;
+  --gold-l:rgba(200,169,110,0.18);
+  --border:#DDD5CA;
+  --text:  #2D2824;
+  --dim:   #7A7068;
+  --dim2:  #B5AEA7;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); min-height: 100vh; font-family: 'Montserrat', sans-serif; color: var(--text); }
+
+/* ── Header ── */
+.hd { position: sticky; top: 0; z-index: 80; background: var(--white); border-bottom: 1px solid var(--border); box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.hd-inner { max-width: 1040px; margin: 0 auto; padding: 10px 16px 0; }
+.hd-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+.hd-logo { display: flex; align-items: center; gap: 12px; }
+.ais-ring { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; border: 2px solid var(--red); display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; color: var(--red); text-align: center; line-height: 1.3; }
+.hd-eyebrow { font-size: 7px; letter-spacing: 4px; color: var(--dim2); text-transform: uppercase; margin-bottom: 1px; }
+.hd-h1 { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; letter-spacing: 1.5px; color: var(--dark); }
+.hd-wein { font-size: 8px; letter-spacing: 1.5px; color: var(--red); text-transform: uppercase; margin-top: 2px; min-height: 12px; }
+.hd-btns { display: flex; gap: 7px; }
+.hd-btn { background: transparent; border: 1px solid var(--border); color: var(--dim); font-family: 'Montserrat', sans-serif; font-size: 7.5px; letter-spacing: 1.5px; font-weight: 600; text-transform: uppercase; padding: 6px 13px; cursor: pointer; border-radius: 3px; transition: all .18s; white-space: nowrap; }
+.hd-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; margin-top: 2px; }
+.tab { padding: 11px 22px 10px; font-size: 9px; letter-spacing: 2px; font-weight: 600; text-transform: uppercase; color: var(--dim2); border-bottom: 2.5px solid transparent; cursor: pointer; user-select: none; transition: color .2s, border-color .2s; margin-bottom: -1px; }
+.tab:hover:not(.on) { color: var(--dark); }
+.tab.on { color: var(--red); border-bottom-color: var(--red); }
+
+/* ── Page ── */
+.page { max-width: 1040px; margin: 0 auto; padding: 18px 14px 50px; }
+
+/* ── Cards ── */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.card-title { font-size: 7.5px; letter-spacing: 3px; color: var(--red); text-transform: uppercase; font-weight: 600; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(139,26,26,0.12); }
+.fl { display: block; font-size: 7.5px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; margin-bottom: 5px; }
+
+/* ── Inputs ── */
+input[type=text], select, textarea {
+  background: #FAFAF7; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-family: 'Montserrat', sans-serif; width: 100%; outline: none; transition: border-color .2s;
+}
+input[type=text] { padding: 8px 10px; font-size: 11px; }
+select { padding: 8px 10px; font-size: 11px; cursor: pointer; }
+select option { background: white; }
+input[type=text]::placeholder { color: var(--dim2); }
+input[type=text]:focus, select:focus { border-color: var(--red); }
+textarea { padding: 9px 11px; font-size: 11px; resize: vertical; }
+textarea:focus { border-color: var(--red); }
+textarea::placeholder { color: var(--dim2); }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+.g4 .sp2 { grid-column: span 2; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 600px) {
+  .g4 { grid-template-columns: 1fr 1fr; }
+  .g4 .sp2 { grid-column: span 2; }
+  .g2 { grid-template-columns: 1fr; }
+}
+
+/* ════════════════════════════════════
+   SECTION CARDS (Tabelle Tab)
+════════════════════════════════════ */
+.sect {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+.sect-hd {
+  background: #2B1F1F;
+  color: #F0E6D3;
+  font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px;
+  padding: 10px 16px;
+}
+.sect-body { padding: 14px 16px; }
+
+/* Option groups within a section */
+.og { margin-bottom: 14px; }
+.og:last-child { margin-bottom: 0; }
+.og-lbl {
+  font-size: 7.5px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase;
+  margin-bottom: 7px; font-weight: 600;
+}
+.og-sublbl {
+  font-size: 7px; color: var(--dim2); font-weight: 400; margin-left: 6px; text-transform: none; letter-spacing: 0;
+}
+.opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.opt {
+  padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px;
+  background: #FAFAF7; color: var(--dim);
+  font-family: 'Montserrat', sans-serif; font-size: 10px;
+  cursor: pointer; user-select: none; transition: all .12s;
+  white-space: nowrap;
+}
+.opt:hover { border-color: var(--red); color: var(--red); background: var(--red-l); }
+.opt.sel { background: var(--gold); border-color: var(--gold); color: #1C1818; font-weight: 700; }
+
+/* Sub-section headers within body */
+.sub-hd {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 7px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  margin: 16px 0 12px; padding: 7px 12px; border-radius: 4px;
+}
+.sub-hd.green { background: #E6F0E5; color: #1D5E27; }
+.perlage-block {
+  border: 1px solid #C8DEC8;
+  border-radius: 6px;
+  background: #F4FAF4;
+  padding: 12px 14px 10px;
+  margin: 4px 0 6px;
+}
+.perlage-block .opt { background: #EDF6ED; border-color: #C8DEC8; }
+.perlage-block .opt:hover { border-color: #1D5E27; color: #1D5E27; background: #DFF0DF; }
+.sub-hd.purple { background: #EDE6F5; color: #4A2880; }
+.sub-hd.red    { background: var(--red); color: white; }
+.sub-hd.amber  { background: #FBF0DC; color: #8B6010; }
+
+/* 2-col pair layout */
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+@media (max-width: 500px) { .pair { grid-template-columns: 1fr; } }
+
+/* ════════════════════════════════════
+   SCORING (Bewertung Tab)
+════════════════════════════════════ */
+.sc-group-hd {
+  font-size: 7px; letter-spacing: 3px; color: var(--red); text-transform: uppercase; font-weight: 600;
+  margin: 20px 0 12px; padding-bottom: 7px; border-bottom: 1px solid rgba(139,26,26,0.12);
+}
+.sc-group-hd:first-of-type { margin-top: 4px; }
+
+.sc-row { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; flex-wrap: wrap; }
+.sc-lbl-wrap { display: flex; flex-direction: column; min-width: 150px; flex-shrink: 0; }
+.sc-lbl { font-size: 9px; letter-spacing: .5px; color: var(--text); font-weight: 500; }
+.sc-wgt {
+  display: inline-block; margin-top: 3px;
+  font-size: 8px; color: var(--red); background: var(--red-l);
+  padding: 2px 8px; border-radius: 10px; letter-spacing: 0.3px; font-weight: 600; width: fit-content;
+}
+
+.sc-icons { display: flex; gap: 7px; flex-shrink: 0; }
+.pt {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400;
+  color: var(--dim); cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none; flex-shrink: 0;
+}
+.pt:hover:not(.sel) { border-color: var(--red); color: var(--red); background: var(--red-l); }
+.pt.sel { background: var(--gold); border-color: var(--gold); color: white; font-weight: 600; box-shadow: 0 2px 8px rgba(200,169,110,0.35); }
+.pt-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.pt-sub { font-size: 8px; color: var(--dim2); letter-spacing: 0.2px; white-space: nowrap; font-weight: 400; }
+.pt-col.active .pt-sub { color: var(--gold); font-weight: 600; }
+.sc-result {
+  font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600;
+  color: var(--gold); white-space: nowrap; margin-left: 6px; min-width: 72px;
+}
+
+/* Total box */
+.total-box { border: 1px solid var(--border); border-radius: 10px; padding: 24px 20px; margin: 18px 0 6px; text-align: center; background: linear-gradient(135deg,#FBF8F4,var(--white)); }
+.t-num   { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 300; color: var(--red); line-height: 1; }
+.t-denom { font-size: 8.5px; color: var(--dim2); letter-spacing: 2px; margin-top: 2px; }
+.t-stars { font-size: 24px; letter-spacing: 4px; margin: 10px 0 4px; color: var(--gold); }
+.t-lbl   { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--red); font-weight: 600; }
+
+/* Persönlich */
+.stars-row { display: flex; gap: 7px; justify-content: center; margin: 8px 0; }
+.star { font-size: 32px; cursor: pointer; color: var(--dim2); transition: color .12s; user-select: none; }
+.star.on { color: var(--gold); }
+.trink-group { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+.trink-btn { padding: 6px 15px; font-size: 8px; letter-spacing: 1px; font-family: 'Montserrat', sans-serif; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--dim); cursor: pointer; border-radius: 3px; transition: all .15s; }
+.trink-btn.on { background: var(--red); border-color: var(--red); color: white; }
+.trink-btn:hover:not(.on) { border-color: var(--red); color: var(--red); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip { padding: 5px 13px; font-size: 8px; font-family: 'Montserrat', sans-serif; border: 1px solid var(--border); background: white; color: var(--dim); cursor: pointer; border-radius: 20px; transition: all .15s; user-select: none; }
+.chip.on { background: var(--gold-l); border-color: var(--gold); color: #6B4010; }
+.chip:hover:not(.on) { border-color: var(--red); color: var(--red); }
+.yn-group { display: flex; gap: 8px; margin-top: 6px; }
+.yn-btn { flex: 1; padding: 9px; font-size: 9px; letter-spacing: 1px; font-family: 'Montserrat', sans-serif; font-weight: 600; text-transform: uppercase; border: 1px solid var(--border); background: white; color: var(--dim); cursor: pointer; border-radius: 4px; transition: all .15s; }
+.yn-btn.on-yes { background: rgba(46,140,60,0.10); border-color: #2E8C3C; color: #2E8C3C; }
+.yn-btn.on-no  { background: rgba(139,26,26,0.09); border-color: var(--red); color: var(--red); }
+
+/* Save */
+.save-btn { width: 100%; padding: 15px; background: var(--red); color: white; font-family: 'Montserrat', sans-serif; font-size: 10px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; border: none; border-radius: 6px; cursor: pointer; margin-top: 16px; transition: background .2s; }
+.save-btn:hover { background: var(--red-d); }
+.save-ok { text-align: center; font-size: 8.5px; letter-spacing: 2px; color: var(--red); margin-top: 8px; opacity: 0; transition: opacity .4s; text-transform: uppercase; min-height: 14px; }
+
+/* Saved panel */
+#saved { position: fixed; inset: 0; background: rgba(242,237,230,0.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 200; display: flex; flex-direction: column; transform: translateY(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); }
+#saved.open { transform: translateY(0); }
+.saved-hd { background: var(--white); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+.saved-hd h2 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; letter-spacing: 2px; color: var(--dark); }
+.saved-body { flex: 1; overflow-y: auto; padding: 16px; max-width: 800px; margin: 0 auto; width: 100%; }
+.saved-empty { text-align: center; color: var(--dim2); font-size: 11px; margin-top: 50px; line-height: 2; }
+.si { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.si-info { flex: 1; min-width: 0; }
+.si-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.si-meta { font-size: 8px; letter-spacing: 1px; color: var(--dim2); text-transform: uppercase; }
+.si-pts  { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; color: var(--red); min-width: 46px; text-align: right; flex-shrink: 0; }
+.si-btns { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.tiny { padding: 5px 12px; font-size: 7.5px; letter-spacing: 1px; font-family: 'Montserrat', sans-serif; font-weight: 600; text-transform: uppercase; border-radius: 3px; cursor: pointer; transition: all .15s; }
+.t-load { background: var(--red); color: white; border: none; }
+.t-load:hover { background: var(--red-d); }
+.t-del  { background: transparent; color: rgba(180,50,50,.7); border: 1px solid rgba(180,50,50,.3); }
+.t-del:hover { background: rgba(180,50,50,.08); }
+
+@media print {
+  .hd { position: relative; box-shadow: none; }
+  .hd-btns,.tab-bar,#saved,.save-btn,.save-ok,.trink-group,.chips,.stars-row,.total-box,.sc-icons,.yn-group { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="hd">
+  <div class="hd-inner">
+    <div class="hd-top">
+      <div class="hd-logo">
+        <div class="ais-ring">AIS<br>Süd<br>tirol</div>
+        <div>
+          <div class="hd-eyebrow">Associazione Italiana Sommelier</div>
+          <h1 class="hd-h1">Weinverkostung</h1>
+          <div class="hd-wein" id="hd-wein"></div>
+        </div>
+      </div>
+      <div class="hd-btns">
+        <button class="hd-btn" onclick="newTasting()">+ Neu</button>
+        <button class="hd-btn" onclick="openSaved()">🍷 Gespeichert</button>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab on" id="tab1" onclick="showTab(1)">Verkostungstabelle</div>
+      <div class="tab"    id="tab2" onclick="showTab(2)">Bewertung</div>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════
+     TAB 1 — VERKOSTUNGSTABELLE
+════════════════════════════ -->
+<div id="page1" class="page">
+
+  <!-- Weinprofil -->
+  <div class="card">
+    <div class="card-title">Weinprofil</div>
+    <div class="g4">
+      <div class="sp2"><span class="fl">Wein / Denominazione</span><input type="text" id="weinname" placeholder="z.B. Barolo DOCG, Pinot Grigio …" oninput="syncMeta()"></div>
+      <div><span class="fl">Jahrgang</span><input type="text" id="jahrgang" placeholder="2021" oninput="syncMeta()"></div>
+      <div><span class="fl">Weintyp</span><select id="weintyp"><option value="">—</option><option>Weißwein</option><option>Rotwein</option><option>Rosé</option><option>Schaumwein</option><option>Süßwein</option></select></div>
+    </div>
+    <div class="g4">
+      <div><span class="fl">Erzeuger / Produttore</span><input type="text" id="erzeuger" placeholder="Weingut …"></div>
+      <div><span class="fl">Herkunft / DOC · DOCG</span><input type="text" id="herkunft" placeholder="z.B. Alto Adige DOC"></div>
+      <div><span class="fl">Rebsorte / Vitigno</span><input type="text" id="rebsorte" placeholder="z.B. Lagrein"></div>
+      <div><span class="fl">Alkohol %</span><input type="text" id="alkohol" placeholder="13,5 %"></div>
+    </div>
+    <div class="g4" style="margin-bottom:0">
+      <div><span class="fl">Temperatur</span><input type="text" id="temp" placeholder="16 °C"></div>
+      <div><span class="fl">Preis €</span><input type="text" id="preis" placeholder="24,00 €"></div>
+      <div class="sp2"><span class="fl">Anlass</span><input type="text" id="anlass" placeholder="z.B. Prüfungsvorbereitung, Abendessen …"></div>
+    </div>
+  </div>
+
+  <!-- ① VISUELLE PRÜFUNG -->
+  <div class="sect">
+    <div class="sect-hd">Visuelle Prüfung</div>
+    <div class="sect-body">
+
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Klarheit</div>
+          <div class="opts">
+            <button class="opt s" data-g="klarheit">Verschleiert</button>
+            <button class="opt s" data-g="klarheit">Genügend klar</button>
+            <button class="opt s" data-g="klarheit">Klar</button>
+            <button class="opt s" data-g="klarheit">Kristallklar</button>
+            <button class="opt s" data-g="klarheit">Brillant</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Konsistenz <span class="og-sublbl">nur stille Weine</span></div>
+          <div class="opts">
+            <button class="opt s" data-g="kons">Fließend / flüssig</button>
+            <button class="opt s" data-g="kons">Durchschnittlich</button>
+            <button class="opt s" data-g="kons">Konsistent</button>
+            <button class="opt s" data-g="kons">Viskös</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Farbe <span class="og-sublbl">Weißwein</span></div>
+          <div class="opts">
+            <button class="opt s" data-g="farbe-ww">Grünlich</button>
+            <button class="opt s" data-g="farbe-ww">Strohgelb</button>
+            <button class="opt s" data-g="farbe-ww">Goldgelb</button>
+            <button class="opt s" data-g="farbe-ww">Bernstein</button>
+            <button class="opt s" data-g="farbe-ww">Mahagoni</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Farbe <span class="og-sublbl">Rosé</span></div>
+          <div class="opts">
+            <button class="opt s" data-g="farbe-ro">Pfirsichblütenfarben</button>
+            <button class="opt s" data-g="farbe-ro">Kupferfarben</button>
+            <button class="opt s" data-g="farbe-ro">Lachsfarben</button>
+            <button class="opt s" data-g="farbe-ro">Korallenfarben</button>
+            <button class="opt s" data-g="farbe-ro">Pfingstrosenfarben</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="og">
+        <div class="og-lbl">Farbe <span class="og-sublbl">Rotwein</span></div>
+        <div class="opts">
+          <button class="opt s" data-g="farbe-rw">Amarantrot</button>
+          <button class="opt s" data-g="farbe-rw">Rubinrot</button>
+          <button class="opt s" data-g="farbe-rw">Karminrot</button>
+          <button class="opt s" data-g="farbe-rw">Granatrot</button>
+          <button class="opt s" data-g="farbe-rw">Orangerot</button>
+        </div>
+      </div>
+
+      <div class="perlage-block">
+      <div class="sub-hd green" style="margin:0 0 10px;border-radius:4px">Perlage <span style="font-weight:400;letter-spacing:0;text-transform:none">— nur schäumende Weine</span></div>
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Perlenketten</div>
+          <div class="opts">
+            <button class="opt s" data-g="perl-k">Spärlich</button>
+            <button class="opt s" data-g="perl-k">Durchschn. zahlreich</button>
+            <button class="opt s" data-g="perl-k">Zahlreich</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Aufstiegsgeschwindigkeit</div>
+          <div class="opts">
+            <button class="opt s" data-g="aufst">Schnell</button>
+            <button class="opt s" data-g="aufst">Mittel</button>
+            <button class="opt s" data-g="aufst">Langsam</button>
+          </div>
+        </div>
+      </div>
+      <div class="pair" style="margin-bottom:0">
+        <div class="og">
+          <div class="og-lbl">Körnung</div>
+          <div class="opts">
+            <button class="opt s" data-g="koern">Grob</button>
+            <button class="opt s" data-g="koern">Durchschn. fein</button>
+            <button class="opt s" data-g="koern">Fein</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Dauerhaftigkeit</div>
+          <div class="opts">
+            <button class="opt s" data-g="dauerh-v">Schwindend / flüchtig</button>
+            <button class="opt s" data-g="dauerh-v">Durchschn. anhaltend</button>
+            <button class="opt s" data-g="dauerh-v">Anhaltend</button>
+          </div>
+        </div>
+      </div>
+      </div><!-- /perlage-block -->
+
+    </div><!-- /sect-body -->
+  </div><!-- /visuell -->
+
+  <!-- ② GERUCHLICHE PRÜFUNG -->
+  <div class="sect">
+    <div class="sect-hd">Geruchliche Prüfung</div>
+    <div class="sect-body">
+
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Intensität</div>
+          <div class="opts">
+            <button class="opt s" data-g="g-int">Moderat</button>
+            <button class="opt s" data-g="g-int">Intensiv</button>
+            <button class="opt s" data-g="g-int">Sehr intensiv</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Komplexität</div>
+          <div class="opts">
+            <button class="opt s" data-g="kompx">Moderat</button>
+            <button class="opt s" data-g="kompx">Komplex</button>
+            <button class="opt s" data-g="kompx">Ausgeprägt</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="og">
+        <div class="og-lbl">Beschreibung <span class="og-sublbl">Mehrfachauswahl möglich</span></div>
+        <div class="opts">
+          <button class="opt s" data-g="b-aromatisch">Aromatisch</button>
+          <button class="opt s" data-g="b-vegetabil">Vegetabil</button>
+          <button class="opt s" data-g="b-fruchtig">Fruchtig</button>
+          <button class="opt s" data-g="b-blumig">Blumig</button>
+          <button class="opt s" data-g="b-rebsorten">Rebsortenbedingt</button>
+          <button class="opt s" data-g="b-duftig">Duftig</button>
+          <button class="opt s" data-g="b-wuerzig">Würzig</button>
+          <button class="opt s" data-g="b-baeckerei">Bäckerei / Konditorei</button>
+          <button class="opt s" data-g="b-empyreum">Empyreumatisch</button>
+        </div>
+      </div>
+
+      <div class="sub-hd red">Geruchliche Qualität</div>
+      <div class="opts">
+        <button class="opt s" data-g="g-qual">Annehmbar</button>
+        <button class="opt s" data-g="g-qual">Gut</button>
+        <button class="opt s" data-g="g-qual">Sehr gut</button>
+        <button class="opt s" data-g="g-qual">Ausgezeichnet</button>
+        <button class="opt s" data-g="g-qual">Exzellent</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ③ GERUCHLICH-GESCHMACKLICHE PRÜFUNG -->
+  <div class="sect">
+    <div class="sect-hd">Geruchlich-Geschmackliche Prüfung</div>
+    <div class="sect-body">
+
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Zucker</div>
+          <div class="opts">
+            <button class="opt s" data-g="zucker">Trocken</button>
+            <button class="opt s" data-g="zucker">Wenig süß</button>
+            <button class="opt s" data-g="zucker">Mäßig süß</button>
+            <button class="opt s" data-g="zucker">Süß</button>
+            <button class="opt s" data-g="zucker">Sehr süß</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Säure</div>
+          <div class="opts">
+            <button class="opt s" data-g="saeure">Wenig frisch</button>
+            <button class="opt s" data-g="saeure">Mäßig frisch</button>
+            <button class="opt s" data-g="saeure">Frisch</button>
+            <button class="opt s" data-g="saeure">Vibrierend</button>
+            <button class="opt s" data-g="saeure">Säuerlich</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Alkohol</div>
+          <div class="opts">
+            <button class="opt s" data-g="alkoh">Wenig warm</button>
+            <button class="opt s" data-g="alkoh">Mäßig warm</button>
+            <button class="opt s" data-g="alkoh">Warm</button>
+            <button class="opt s" data-g="alkoh">Sehr warm</button>
+            <button class="opt s" data-g="alkoh">Alkoholisch / alkoholreich</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Gerbstoffe</div>
+          <div class="opts">
+            <button class="opt s" data-g="gerb">Wenig tanninhaltig</button>
+            <button class="opt s" data-g="gerb">Mäßig tanninhaltig</button>
+            <button class="opt s" data-g="gerb">Tanninhaltig</button>
+            <button class="opt s" data-g="gerb">Entschieden</button>
+            <button class="opt s" data-g="gerb">Adstringierend</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <div class="og">
+          <div class="og-lbl">Rundheit / Weichheit</div>
+          <div class="opts">
+            <button class="opt s" data-g="rund">Wenig weich</button>
+            <button class="opt s" data-g="rund">Mäßig weich</button>
+            <button class="opt s" data-g="rund">Weich</button>
+            <button class="opt s" data-g="rund">Samtig</button>
+            <button class="opt s" data-g="rund">Vollmundig / pastös</button>
+          </div>
+        </div>
+        <div class="og">
+          <div class="og-lbl">Schmackhafte Substanzen</div>
+          <div class="opts">
+            <button class="opt s" data-g="schm">Wenig saftig</button>
+            <button class="opt s" data-g="schm">Mäßig saftig</button>
+            <button class="opt s" data-g="schm">Saftig</button>
+            <button class="opt s" data-g="schm">Schmackhaft</button>
+            <button class="opt s" data-g="schm">Salzig</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="perlage-block">
+      <div class="sub-hd green" style="margin:0 0 10px;border-radius:4px">Perlage <span style="font-weight:400;letter-spacing:0;text-transform:none">— nur schäumende Weine</span></div>
+      <div class="og" style="margin-bottom:0">
+        <div class="opts">
+          <button class="opt s" data-g="perl-gs">Delikat</button>
+          <button class="opt s" data-g="perl-gs">Mäßig</button>
+          <button class="opt s" data-g="perl-gs">Lebhaft</button>
+          <button class="opt s" data-g="perl-gs">Überschwänglich</button>
+          <button class="opt s" data-g="perl-gs">Prägnant / knackig</button>
+        </div>
+      </div>
+      </div><!-- /perlage-block -->
+
+      <div style="margin-top:14px">
+        <div class="pair">
+          <div class="og">
+            <div class="og-lbl">Intensität</div>
+            <div class="opts">
+              <button class="opt s" data-g="gs-int">Mäßig intensiv</button>
+              <button class="opt s" data-g="gs-int">Intensiv</button>
+              <button class="opt s" data-g="gs-int">Sehr intensiv</button>
+            </div>
+          </div>
+          <div class="og">
+            <div class="og-lbl">Struktur</div>
+            <div class="opts">
+              <button class="opt s" data-g="gs-str">Mittelgewichtig</button>
+              <button class="opt s" data-g="gs-str">Voll</button>
+              <button class="opt s" data-g="gs-str">Kräftig / robust</button>
+            </div>
+          </div>
+        </div>
+        <div class="pair">
+          <div class="og">
+            <div class="og-lbl">Gleichgewicht</div>
+            <div class="opts">
+              <button class="opt s" data-g="gs-gl">Wenig ausgeglichen</button>
+              <button class="opt s" data-g="gs-gl">Mäßig ausgeglichen</button>
+              <button class="opt s" data-g="gs-gl">Ausgeglichen</button>
+            </div>
+          </div>
+          <div class="og">
+            <div class="og-lbl">Dauerhaftigkeit</div>
+            <div class="opts">
+              <button class="opt s" data-g="gs-dh">Mäßig anhaltend</button>
+              <button class="opt s" data-g="gs-dh">Anhaltend</button>
+              <button class="opt s" data-g="gs-dh">Sehr anhaltend</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-hd red">Geruchlich-Geschmackliche Qualität</div>
+      <div class="opts">
+        <button class="opt s" data-g="gs-qual">Annehmbar</button>
+        <button class="opt s" data-g="gs-qual">Gut</button>
+        <button class="opt s" data-g="gs-qual">Sehr gut</button>
+        <button class="opt s" data-g="gs-qual">Ausgezeichnet</button>
+        <button class="opt s" data-g="gs-qual">Exzellent</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ④ ERGEBNIS -->
+  <div class="sect">
+    <div class="sect-hd">Ergebnis</div>
+    <div class="sect-body">
+
+      <div class="og">
+        <div class="og-lbl">Entwicklungsstadium</div>
+        <div class="opts">
+          <button class="opt s" data-g="entw">Trinkreif</button>
+          <button class="opt s" data-g="entw">Reif</button>
+        </div>
+      </div>
+
+      <div class="og">
+        <div class="og-lbl">Harmonie</div>
+        <div class="opts">
+          <button class="opt s" data-g="harm">Wenig harmonisch</button>
+          <button class="opt s" data-g="harm">Durchschnittlich harmonisch</button>
+          <button class="opt s" data-g="harm">Harmonisch</button>
+        </div>
+      </div>
+
+      <div class="sub-hd red">Gesamtqualität</div>
+      <div class="opts">
+        <button class="opt s" data-g="gesamt">Annehmbar</button>
+        <button class="opt s" data-g="gesamt">Gut</button>
+        <button class="opt s" data-g="gesamt">Sehr gut</button>
+        <button class="opt s" data-g="gesamt">Ausgezeichnet</button>
+        <button class="opt s" data-g="gesamt">Exzellent</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notizen -->
+  <div class="card">
+    <span class="fl">Verkostungsnotizen</span>
+    <textarea id="notizen" placeholder="Aromen, Besonderheiten, persönliche Einschätzung …" style="height:80px"></textarea>
+  </div>
+
+</div><!-- /page1 -->
+
+<!-- ════════════════════════════
+     TAB 2 — BEWERTUNG
+════════════════════════════ -->
+<div id="page2" class="page" hidden>
+
+  <!-- Weinreferenz (schreibgeschützt, aus Tab 1) -->
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:7px;letter-spacing:3px;color:var(--dim2);text-transform:uppercase;margin-bottom:3px">Verkosteter Wein</div>
+      <div id="b2-wein" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+    </div>
+    <div style="font-size:8px;color:var(--dim2);white-space:nowrap;text-align:right">
+      <div id="b2-info" style="letter-spacing:1px;text-transform:uppercase"></div>
+    </div>
+    <button class="hd-btn" onclick="showTab(1)" style="flex-shrink:0">← Tabelle</button>
+  </div>
+
+  <!-- AIS Punktebewertung -->
+  <div class="card">
+    <div class="card-title">AIS Punktebewertung
+      <span style="font-weight:400;color:var(--dim2);letter-spacing:1px;font-size:7px;margin-left:8px">· Jeder Schritt bezogen auf die Weinkategorie</span>
+    </div>
+    <div id="score-container"></div>
+    <div class="total-box">
+      <div class="t-num"   id="t-num">—</div>
+      <div class="t-denom">von 100 Punkten</div>
+      <div class="t-stars" id="t-stars">☆☆☆☆☆</div>
+      <div class="t-lbl"   id="t-lbl">Bitte alle Kategorien bewerten</div>
+    </div>
+  </div>
+
+  <!-- Persönliche Einschätzung -->
+  <div class="card">
+    <div class="card-title">Persönliche Einschätzung</div>
+    <span class="fl">Sterne-Bewertung</span>
+    <div class="stars-row" id="star-row">
+      <span class="star on" data-s="1">★</span>
+      <span class="star on" data-s="2">★</span>
+      <span class="star on" data-s="3">★</span>
+      <span class="star"    data-s="4">★</span>
+      <span class="star"    data-s="5">★</span>
+    </div>
+    <div style="margin-top:16px">
+      <span class="fl">Nochmal kaufen?</span>
+      <div class="yn-group">
+        <button class="yn-btn" id="yn-ja" onclick="setKaufen(true)">✓  Ja</button>
+        <button class="yn-btn" id="yn-nein" onclick="setKaufen(false)">✕  Nein</button>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <span class="fl">Trinkfenster</span>
+      <div class="trink-group">
+        <button class="trink-btn" data-t="Jetzt">Jetzt</button>
+        <button class="trink-btn" data-t="1–3 Jahre">1–3 Jahre</button>
+        <button class="trink-btn" data-t="3–5 Jahre">3–5 Jahre</button>
+        <button class="trink-btn" data-t="5–10 Jahre">5–10 Jahre</button>
+        <button class="trink-btn" data-t="10+ Jahre">10+ Jahre</button>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <span class="fl">Speiseempfehlungen</span>
+      <div class="chips">
+        <span class="chip" data-f="Antipasti">Antipasti</span>
+        <span class="chip" data-f="Fisch">Fisch</span>
+        <span class="chip" data-f="Meeresfrüchte">Meeresfrüchte</span>
+        <span class="chip" data-f="Geflügel">Geflügel</span>
+        <span class="chip" data-f="Weißfleisch">Weißfleisch</span>
+        <span class="chip" data-f="Rotfleisch">Rotfleisch</span>
+        <span class="chip" data-f="Wild">Wild</span>
+        <span class="chip" data-f="Pasta / Risotto">Pasta / Risotto</span>
+        <span class="chip" data-f="Käse">Käse</span>
+        <span class="chip" data-f="Dessert">Dessert</span>
+        <span class="chip" data-f="Aperitif">Aperitif</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aromen & Fazit -->
+  <div class="card">
+    <div class="card-title">Aromen &amp; Fazit</div>
+    <div class="g2">
+      <div><span class="fl">Wichtigste Aromen</span><textarea id="aromen" placeholder="z.B. Kirsche, Veilchen, Tabak, Vanille, Mineralität …" style="height:88px"></textarea></div>
+      <div><span class="fl">Fazit / Gesamteindruck</span><textarea id="fazit" placeholder="Zusammenfassung, besondere Eindrücke …" style="height:88px"></textarea></div>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="doSave()">💾  Verkostung speichern</button>
+  <div class="save-ok" id="save-ok">✓ Gespeichert</div>
+
+</div><!-- /page2 -->
+
+<!-- ── SAVED PANEL ── -->
+<div id="saved">
+  <div class="saved-hd">
+    <h2>Gespeicherte Verkostungen</h2>
+    <button class="hd-btn" onclick="closeSaved()">✕ Schließen</button>
+  </div>
+  <div class="saved-body" id="saved-body">
+    <div class="saved-empty">Noch keine Verkostungen gespeichert.</div>
+  </div>
+</div>
+
+<script>
+/* ── Config ── */
+const SC_GROUPS = [
+  { hd: 'Visuelle Prüfung – 10%', cats: [
+    { id:'aus', lbl:'Aussehen',                           wgt:1   }
+  ]},
+  { hd: 'Geruchliche Prüfung – 30%', cats: [
+    { id:'oi',  lbl:'Intensität',                         wgt:0.5 },
+    { id:'re',  lbl:'Reinheit / Eleganz',                 wgt:1   },
+    { id:'ka',  lbl:'Komplexität / Attraktivität',        wgt:1.5 }
+  ]},
+  { hd: 'Geruchlich-Geschmackliche Prüfung – 40%', cats: [
+    { id:'is',  lbl:'Intensität und Struktur',            wgt:0.5 },
+    { id:'gl',  lbl:'Gleichgewicht',                      wgt:1   },
+    { id:'ae',  lbl:'Ausdruck / Eleganz',                 wgt:1   },
+    { id:'da',  lbl:'Dauerhaftigkeit / Attraktivität',    wgt:1.5 }
+  ]},
+  { hd: 'Bewertungen / Schlussfolgerungen – 20%', cats: [
+    { id:'gh',  lbl:'Gesamtharmonie',                     wgt:0.5 },
+    { id:'gc',  lbl:'Gesamtqualität und Charakter',       wgt:1.5 }
+  ]}
+];
+/* Summe Multiplikatoren = 1+0.5+1+1.5+0.5+1+1+1.5+0.5+1.5 = 10
+   Max-Rohwert = 10 × 10 = 100  →  total = raw direkt (keine Normalisierung) */
+const SC_WGT  = {};
+const SC_MAX  = {};
+SC_GROUPS.forEach(g=>g.cats.forEach(c=>{ SC_WGT[c.id]=c.wgt; SC_MAX[c.id]=c.wgt; }));
+const SC_CATS = Object.keys(SC_WGT);
+const MAX_RAW = 100;  // 10 × Σwgt = 10 × 10 = 100, total = raw
+const KEY = 'ais_v4';
+
+/* calcPt: icon value (7-10) × Koeffizient = Rohpunkte für diese Kategorie */
+function calcPt(iconVal, wgt) {
+  const raw = iconVal * wgt;
+  return Math.round(raw * 10) / 10;  // 1 Dezimalstelle falls nötig
+}
+
+/* ── Build scoring rows dynamically ── */
+function buildScoreUI() {
+  const container = document.getElementById('score-container');
+
+  // Column header row (matches the paper sheet)
+  const colHd = document.createElement('div');
+  colHd.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 0 12px;border-bottom:2px solid rgba(139,26,26,0.18);margin-bottom:4px';
+  colHd.innerHTML = `
+    <div style="flex:1;font-size:7.5px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;line-height:1.4">
+      Jeder Schritt erfolgt mit Bezug auf die Weinkategorie
+    </div>
+    <div style="display:flex;gap:7px;flex-shrink:0">
+      ${[10,9,8,7].map(v=>`<div style="width:44px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--red)">${v}</div>`).join('')}
+    </div>
+    <div style="font-size:7.5px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;min-width:90px;text-align:right">Multiplikator</div>`;
+  container.appendChild(colHd);
+
+  SC_GROUPS.forEach(grp => {
+    const hd = document.createElement('div');
+    hd.className = 'sc-group-hd'; hd.textContent = grp.hd;
+    container.appendChild(hd);
+
+    grp.cats.forEach(cat => {
+      const row = document.createElement('div');
+      row.className = 'sc-row'; row.id = 'row-'+cat.id;
+
+      const iconsHTML = [10,9,8,7].map(v => {
+        const pts = calcPt(v, cat.wgt);
+        const ptsStr = Number.isInteger(pts) ? pts : pts.toFixed(1);
+        return `<div class="pt-col" id="col-${cat.id}-${v}">
+          <button class="pt" data-cat="${cat.id}" data-v="${v}" onclick="setPt('${cat.id}',${v})">${v}</button>
+          <span class="pt-sub">${ptsStr} P.</span>
+        </div>`;
+      }).join('');
+
+      row.innerHTML = `
+        <div class="sc-lbl-wrap">
+          <span class="sc-lbl">${cat.lbl}</span>
+          <span class="sc-wgt">Koeffizient ×${cat.wgt}</span>
+        </div>
+        <div class="sc-icons">${iconsHTML}</div>
+        <div class="sc-result" id="sub-${cat.id}"></div>`;
+      container.appendChild(row);
+    });
+  });
+
+  // Quick-calc footer row (matches paper: 100 / 90 / 80 / 70)
+  const footer = document.createElement('div');
+  footer.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 0 4px;border-top:2px solid rgba(139,26,26,0.18);margin-top:8px';
+  footer.innerHTML = `
+    <div style="flex:1;font-size:8px;color:var(--dim);letter-spacing:1px">
+      Wert der Gesamtreihe für die schnelle Berechnung
+    </div>
+    <div style="display:flex;gap:7px;flex-shrink:0">
+      ${[100,90,80,70].map(v=>`<div style="width:44px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--dim2)">${v}</div>`).join('')}
+    </div>
+    <div style="min-width:90px"></div>`;
+  container.appendChild(footer);
+}
+
+/* ── State ── */
+let sel={}, scVals={}, myStars=3, myTrink='', mySpeisen=new Set(), myKaufen=null;
+SC_CATS.forEach(c=>scVals[c]=null);
+
+/* ── Tabs ── */
+function showTab(n){
+  document.getElementById('page1').hidden=(n!==1);
+  document.getElementById('page2').hidden=(n!==2);
+  document.getElementById('tab1').classList.toggle('on',n===1);
+  document.getElementById('tab2').classList.toggle('on',n===2);
+  if(n===2) mirrorMeta();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function mirrorMeta(){ syncMeta(); }
+function syncMeta(){
+  const w=v('weinname'),j=v('jahrgang'),e=v('erzeuger'),t=v('weintyp');
+  document.getElementById('hd-wein').textContent=w?(j?w+' · '+j:w):'';
+  const b2w=document.getElementById('b2-wein');
+  const b2i=document.getElementById('b2-info');
+  if(b2w) b2w.textContent=w?(j?w+' · '+j:w):'—';
+  if(b2i) b2i.textContent=[e,t].filter(Boolean).join(' · ');
+}
+function syncBMeta(){ syncMeta(); }
+
+/* ── Chip/option clicks ── */
+document.querySelectorAll('.s').forEach(c=>{
+  c.addEventListener('click',function(){
+    const g=this.dataset.g;
+    if(this.classList.contains('sel')){this.classList.remove('sel');delete sel[g];}
+    else{document.querySelectorAll('.s[data-g="'+g+'"]').forEach(x=>x.classList.remove('sel'));this.classList.add('sel');sel[g]=this.textContent.trim();}
+  });
+});
+
+/* ── Point icons 10→7 ── */
+function setPt(cat, val){
+  scVals[cat] = val;
+  document.querySelectorAll('.pt[data-cat="'+cat+'"]').forEach(b=>{
+    const sel = +b.dataset.v === val;
+    b.classList.toggle('sel', sel);
+    const col = document.getElementById('col-'+cat+'-'+b.dataset.v);
+    if(col) col.classList.toggle('active', sel);
+  });
+  updTotal();
+}
+function updTotal(){
+  const allSet = SC_CATS.every(c=>scVals[c]!==null);
+  if(!allSet){
+    document.getElementById('t-num').textContent='—';
+    document.getElementById('t-stars').textContent='☆☆☆☆☆';
+    document.getElementById('t-lbl').textContent='Bitte alle Kategorien bewerten';
+    SC_CATS.forEach(c=>{const el=document.getElementById('sub-'+c);if(el)el.textContent='';});
+    return;
+  }
+  // raw = Σ (icon × Koeffizient), normalize to /100
+  const raw = SC_CATS.reduce((s,c)=>s+calcPt(scVals[c],SC_WGT[c]),0);
+  const tot = Math.round(raw);  // MAX_RAW=100, raw is already /100
+  document.getElementById('t-num').textContent=tot;
+  const [lbl,stars]=qlabel(tot);
+  document.getElementById('t-lbl').textContent=lbl;
+  document.getElementById('t-stars').textContent=stars;
+  SC_CATS.forEach(c=>{
+    const el=document.getElementById('sub-'+c);
+    const pts=calcPt(scVals[c],SC_WGT[c]);
+    const ptsStr=Number.isInteger(pts)?pts:pts.toFixed(1);
+    if(el) el.textContent='= '+ptsStr+' Pkt.';
+  });
+}
+function qlabel(n){
+  if(n>=90)return['Exzellent','★★★★★'];
+  if(n>=80)return['Ausgezeichnet','★★★★☆'];
+  if(n>=70)return['Sehr gut','★★★☆☆'];
+  if(n>=60)return['Gut','★★☆☆☆'];
+  if(n>=50)return['Annehmbar','★☆☆☆☆'];
+  return['Nicht geeignet','☆☆☆☆☆'];
+}
+function getTotal(){
+  return SC_CATS.every(c=>scVals[c]!==null)
+    ? Math.round(SC_CATS.reduce((s,c)=>s+calcPt(scVals[c],SC_WGT[c]),0)) : 0;
+}
+function renderScores(saved){
+  SC_CATS.forEach(c=>{
+    scVals[c]=saved?.[c]??null;
+    document.querySelectorAll('.pt[data-cat="'+c+'"]').forEach(b=>{
+      const sel=scVals[c]!==null&&+b.dataset.v===scVals[c];
+      b.classList.toggle('sel',sel);
+      const col=document.getElementById('col-'+c+'-'+b.dataset.v);
+      if(col)col.classList.toggle('active',sel);
+    });
+  });
+  updTotal();
+}
+
+/* ── Stars ── */
+document.querySelectorAll('.star').forEach(s=>s.addEventListener('click',function(){myStars=+this.dataset.s;renderStars();}));
+function renderStars(n){const vv=n??myStars;document.querySelectorAll('.star').forEach(s=>s.classList.toggle('on',+s.dataset.s<=vv));}
+
+/* ── Kaufen ── */
+function setKaufen(val){
+  myKaufen=val;
+  document.getElementById('yn-ja').className='yn-btn'+(val===true?' on-yes':'');
+  document.getElementById('yn-nein').className='yn-btn'+(val===false?' on-no':'');
+}
+
+/* ── Trink ── */
+document.querySelectorAll('.trink-btn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.trink-btn').forEach(x=>x.classList.remove('on'));
+  myTrink=(myTrink===this.dataset.t?'':(this.classList.add('on'),this.dataset.t));
+}));
+function renderTrink(val){myTrink=val||'';document.querySelectorAll('.trink-btn').forEach(b=>b.classList.toggle('on',b.dataset.t===myTrink));}
+
+/* ── Chips ── */
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',function(){const f=this.dataset.f;if(mySpeisen.has(f)){mySpeisen.delete(f);this.classList.remove('on');}else{mySpeisen.add(f);this.classList.add('on');}}));
+function renderSpeisen(arr){mySpeisen=new Set(arr||[]);document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',mySpeisen.has(c.dataset.f)));}
+
+/* ── Utils ── */
+function v(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function es(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── New tasting ── */
+function newTasting(){
+  if(!confirm('Neue Verkostung starten? Ungespeicherte Eingaben gehen verloren.'))return;
+  ['weinname','jahrgang','temp','preis','anlass','erzeuger','herkunft','rebsorte','alkohol','notizen','aromen','fazit'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['weintyp'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  sel={};document.querySelectorAll('.s.sel').forEach(c=>c.classList.remove('sel'));
+  renderScores(null);
+  myStars=3;renderStars();myTrink='';renderTrink('');mySpeisen=new Set();renderSpeisen([]);
+  myKaufen=null;setKaufen(null);
+  document.getElementById('hd-wein').textContent='';
+  document.getElementById('save-ok').style.opacity='0';
+  showTab(1);
+}
+
+/* ── Save ── */
+function doSave(){
+  const bw=v('weinname'),bj=v('jahrgang');
+  syncMeta();
+  const id=sel._id||Date.now().toString();
+  const e={
+    id,savedAt:new Date().toISOString(),
+    weinname:v('weinname')||'Unbenannte Verkostung',
+    jahrgang:v('jahrgang'),weintyp:v('weintyp'),
+    temp:v('temp'),preis:v('preis'),anlass:v('anlass'),
+    erzeuger:v('erzeuger'),herkunft:v('herkunft'),
+    rebsorte:v('rebsorte'),alkohol:v('alkohol'),
+    sel:{...sel},notizen:v('notizen'),
+    scores:{...scVals},total:getTotal(),
+    sterne:myStars,trink:myTrink,speisen:[...mySpeisen],kaufen:myKaufen,
+    aromen:v('aromen'),fazit:v('fazit'),
+  };
+  sel._id=id;
+  let list=loadList();const idx=list.findIndex(x=>x.id===id);
+  if(idx>=0)list[idx]=e;else list.unshift(e);
+  try{localStorage.setItem(KEY,JSON.stringify(list));}
+  catch(ex){alert('Speichern fehlgeschlagen: '+ex.message);return;}
+  const ok=document.getElementById('save-ok');
+  ok.style.opacity='1';setTimeout(()=>ok.style.opacity='0',2500);
+}
+
+/* ── List ── */
+function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return[];}}
+function openSaved(){renderList();document.getElementById('saved').classList.add('open');}
+function closeSaved(){document.getElementById('saved').classList.remove('open');}
+function renderList(){
+  const list=loadList(),body=document.getElementById('saved-body');
+  if(!list.length){body.innerHTML='<div class="saved-empty">Noch keine Verkostungen gespeichert.<br>Tabelle ausfüllen → Bewertung → Speichern.</div>';return;}
+  body.innerHTML='';
+  list.forEach(e=>{
+    const d=new Date(e.savedAt).toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const[ql]=qlabel(e.total||0);
+    const meta=[d,e.jahrgang?es(e.jahrgang):'',e.weintyp?es(e.weintyp):'',e.erzeuger?es(e.erzeuger):'',ql].filter(Boolean).join(' · ');
+    const div=document.createElement('div');div.className='si';
+    div.innerHTML='<div class="si-info"><div class="si-name">'+es(e.weinname||'Unbenannte')+'</div><div class="si-meta">'+meta+'</div></div><div class="si-pts">'+(e.total||'—')+'</div><div class="si-btns"><button class="tiny t-load" onclick="loadEntry(\''+e.id+'\')">Laden</button><button class="tiny t-del" onclick="delEntry(\''+e.id+'\')">✕</button></div>';
+    body.appendChild(div);
+  });
+}
+function loadEntry(id){
+  const e=loadList().find(x=>x.id===id);if(!e)return;
+  ['weinname','jahrgang','temp','preis','anlass','erzeuger','herkunft','rebsorte','alkohol','notizen','aromen','fazit'].forEach(f=>{const el=document.getElementById(f);if(el)el.value=e[f]||'';});
+  document.getElementById('weintyp').value=e.weintyp||'';syncMeta();
+  sel={...(e.sel||{})};
+  document.querySelectorAll('.s').forEach(c=>c.classList.remove('sel'));
+  Object.entries(sel).forEach(([g,val])=>{if(g==='_id')return;document.querySelectorAll('.s[data-g="'+g+'"]').forEach(c=>{if(c.textContent.trim()===val)c.classList.add('sel');});});
+  renderScores(e.scores);
+  myStars=e.sterne||3;renderStars();renderTrink(e.trink);renderSpeisen(e.speisen);
+  myKaufen=e.kaufen??null;setKaufen(myKaufen);
+  closeSaved();showTab(1);
+}
+function delEntry(id){
+  if(!confirm('Diese Verkostung löschen?'))return;
+  localStorage.setItem(KEY,JSON.stringify(loadList().filter(x=>x.id!==id)));renderList();
+}
+
+/* ── Init ── */
+buildScoreUI();
+</script>
+</body>
+</html>
